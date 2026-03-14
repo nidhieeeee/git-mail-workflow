@@ -1,5 +1,5 @@
 # Git Mail Workflow
-![alt text](image.png)
+<img src="public/image.png" width="70">
 
 This project demonstrates how to build a CI/CD notification system using GitHub Actions that automatically sends an email when a Pull Request is merged into the `main` branch.
 
