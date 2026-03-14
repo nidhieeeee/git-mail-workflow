@@ -5,7 +5,7 @@ on:
     types: [closed]
     branches:
       - main
-  workflow_dispatch: #manual trigger
+  workflow_dispatch:
 
 jobs:
   send-email:
@@ -13,50 +13,56 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Send Email via Brevo API
-      run: |
-        curl --request POST \
-          --url https://api.brevo.com/v3/smtp/email \
-          --header "accept: application/json" \
-          --header "api-key:${{ secrets.BREVO_API_KEY }}" \
-          --header "content-type: application/json" \
-          --data '{
+      - name: Send Email via Brevo API
+        run: |
+          curl --request POST \
+            --url https://api.brevo.com/v3/smtp/email \
+            --header "accept: application/json" \
+            --header "api-key:${{ secrets.BREVO_API_KEY }}" \
+            --header "content-type: application/json" \
+            --data @- <<EOF
+          {
             "sender": {
               "name": "Git Bot",
-              "email": "'"${{ secrets.FROM_EMAIL }}"'"
+              "email": "${{ secrets.FROM_EMAIL }}"
             },
             "to": [
               {
-                "email": "'"${{ secrets.TO_EMAIL }}"'",
+                "email": "${{ secrets.TO_EMAIL }}",
                 "name": "Jatin"
               }
             ],
-            "subject": "PR merged to main 🚀",
-            "htmlContent": "<div style='margin: 0 auto; max-width: 600px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Helvetica, Arial, sans-serif; border: 1px solid #d0d7de; border-radius: 6px; overflow: hidden; background-color: #ffffff; box-shadow: 0 1px 3px rgba(31,35,40,0.12);'>
-              <div style='background-color: #f6f8fa; padding: 12px 16px; border-bottom: 1px solid #d0d7de; display: flex; align-items: center;'>
-                <div style='background-color: #8250df; color: #ffffff; border-radius: 2em; padding: 4px 12px; font-size: 12px; font-weight: 600; display: inline-block; margin-right: 12px;'>
-                  Merged
-                </div>
-                <span style='font-size: 14px; color: #57606a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>
-                  ${{ github.repository }}
-                </span>
+            "subject": "Pull Request merged to main",
+            "htmlContent": "<div style='margin:0 auto;max-width:600px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Helvetica,Arial,sans-serif;border:1px solid #d0d7de;border-radius:6px;background-color:#ffffff;overflow:hidden;box-shadow:0 1px 3px rgba(31,35,40,0.12);'>
+              
+              <div style='background:#f6f8fa;padding:12px 16px;border-bottom:1px solid #d0d7de;'>
+                <strong style='background:#8250df;color:white;padding:4px 10px;border-radius:20px;font-size:12px;'>Merged</strong>
+                <span style='margin-left:10px;font-size:14px;color:#57606a;'>${{ github.repository }}</span>
               </div>
 
-              <div style='padding: 16px;'>
-                <div style='margin-bottom: 16px;'>
-                  <h3 style='margin: 0; font-size: 18px; font-weight: 600; color: #24292f; line-height: 1.4;'>
-                    ${{ github.event.pull_request.title }}
-                  </h3>
-                  <p style='margin: 4px 0 0 0; font-size: 14px; color: #57606a;'>
-                    Pull Request <span style='color: #8250df; font-weight: 500;'>#${{ github.event.pull_request.number }}</span> was successfully merged.
-                  </p>
-                </div>
+              <div style='padding:16px'>
+                <h3 style='margin:0 0 8px 0;color:#24292f;font-size:18px;'>
+                  ${{ github.event.pull_request.title }}
+                </h3>
 
-                <div style='border-top: 1px solid #f0f2f4; pt: 16px; padding-top: 16px;'>
-                  <a href='${{ github.event.pull_request.html_url }}' style='display: inline-block; background-color: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; padding: 6px 16px; font-size: 14px; font-weight: 600; border-radius: 6px; text-decoration: none; text-align: center; min-width: 100px;'>
-                    View Pull Request
-                  </a>
-                </div>
+                <p style='margin:0 0 10px 0;font-size:14px;color:#57606a;'>
+                  Pull Request #${{ github.event.pull_request.number }} was merged successfully.
+                </p>
+
+                <p style='margin:0 0 6px 0;font-size:14px;color:#24292f;'>
+                  <strong>Merged by:</strong> ${{ github.event.pull_request.merged_by.login }}
+                </p>
+
+                <p style='margin:0 0 12px 0;font-size:14px;color:#24292f;'>
+                  <strong>Branch:</strong> ${{ github.event.pull_request.head.ref }} → main
+                </p>
+
+                <a href='${{ github.event.pull_request.html_url }}'
+                  style='display:inline-block;background:#f6f8fa;border:1px solid #d0d7de;padding:6px 16px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;color:#24292f;'>
+                  View Pull Request
+                </a>
               </div>
+
             </div>"
-          }'
+          }
+          EOF
