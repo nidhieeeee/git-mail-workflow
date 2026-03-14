@@ -12,19 +12,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send Email
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp-relay.brevo.com
-          server_port: 587
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: "PR merged to main"
-          to: helloitsmejatin@gmail.com
-          from: git@codexjatin.me
-          body: |
-            A pull request was merged to main.
-
-            Repo: ${{ github.repository }}
-            PR: ${{ github.event.pull_request.title }}
-            Link: ${{ github.event.pull_request.html_url }}
+      - name: Send Email via Brevo API
+        run: |
+          curl --request POST \
+          --url https://api.brevo.com/v3/smtp/email \
+          --header "accept: application/json" \
+          --header "api-key:${{ secrets.BREVO_API_KEY }}" \
+          --header "content-type: application/json" \
+          --data '{
+            "sender": {
+              "name": "Git Bot",
+              "email": "${{ secrets.TO_EMAIL }}"
+            },
+            "to": [
+              {
+                "email": "${{ secrets.FROM_EMAIL }}",
+                "name": "Jatin"
+              }
+            ],
+            "subject": "PR merged to main 🚀",
+            "htmlContent": "<h2>Pull Request merged</h2><p><b>Repo:</b> '${{ github.repository }}'</p><p><b>PR:</b> '${{ github.event.pull_request.title }}'</p><p><a href='${{ github.event.pull_request.html_url }}'>View PR</a></p>"
+          }'
