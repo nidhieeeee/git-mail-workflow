@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send Email via Brevo API
-        run: |
-          curl --request POST \
+    - name: Send Email via Brevo API
+      run: |
+        curl --request POST \
           --url https://api.brevo.com/v3/smtp/email \
           --header "accept: application/json" \
           --header "api-key:${{ secrets.BREVO_API_KEY }}" \
@@ -22,14 +22,14 @@ jobs:
           --data '{
             "sender": {
               "name": "Git Bot",
-              "email": "${{ secrets.TO_EMAIL }}"
+              "email": "'"${{ secrets.FROM_EMAIL }}"'"
             },
             "to": [
               {
-                "email": "${{ secrets.FROM_EMAIL }}",
+                "email": "'"${{ secrets.TO_EMAIL }}"'",
                 "name": "Jatin"
               }
             ],
             "subject": "PR merged to main 🚀",
-            "htmlContent": "<h2>Pull Request merged</h2><p><b>Repo:</b> '${{ github.repository }}'</p><p><b>PR:</b> '${{ github.event.pull_request.title }}'</p><p><a href='${{ github.event.pull_request.html_url }}'>View PR</a></p>"
+            "htmlContent": "<h2>Pull Request merged</h2><p><b>Repo:</b> ${{ github.repository }}</p><p><b>PR:</b> ${{ github.event.pull_request.title }}</p><p><a href=${{ github.event.pull_request.html_url }}>View PR</a></p>"
           }'
