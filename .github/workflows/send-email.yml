@@ -1,0 +1,30 @@
+name: Email on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  send-email:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp-relay.brevo.com
+          server_port: 587
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "PR merged to main"
+          to: helloitsmejatin@gmail.com
+          from: git@codexjatin.me
+          body: |
+            A pull request was merged to main.
+
+            Repo: ${{ github.repository }}
+            PR: ${{ github.event.pull_request.title }}
+            Link: ${{ github.event.pull_request.html_url }}
